@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<!--    //成图比例尺-->
+    <string-array name="mappingTheProportionArrAy">
+        <item>1:500</item>
+        <item>1:1000</item>
+        <item>1:2000</item>
+        <item>1:5000</item>
+        <item>1:10000</item>
+        <item>无要求</item>
+    </string-array>
+</resources>
