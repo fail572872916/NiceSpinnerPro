@@ -5,11 +5,15 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 
 import com.sutoon.spinner.R;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /*
  * Copyright (C) 2015 Angelo Marchesin.
@@ -36,14 +40,24 @@ public abstract class NiceSpinnerBaseAdapter<T> extends BaseAdapter {
     private int backgroundSelector;
 
     int selectedIndex;
+    List<Integer> res;
+
+    boolean isShowDrawable = false;
+    boolean isShowColor = false;
 
     NiceSpinnerBaseAdapter(
             Context context,
             int textColor,
+            List<Integer> res,
+            Boolean isShowDrawable,
+            Boolean isShowColor,
             int backgroundSelector,
             SpinnerTextFormatter spinnerTextFormatter,
             PopUpTextAlignment horizontalAlignment
     ) {
+        this.res = res;
+        this.isShowDrawable = isShowDrawable;
+        this.isShowColor = isShowColor;
         this.spinnerTextFormatter = spinnerTextFormatter;
         this.backgroundSelector = backgroundSelector;
         this.textColor = textColor;
@@ -54,10 +68,12 @@ public abstract class NiceSpinnerBaseAdapter<T> extends BaseAdapter {
     public View getView(int position, @Nullable View convertView, ViewGroup parent) {
         Context context = parent.getContext();
         TextView textView;
+        ImageView imageView = null;
 
         if (convertView == null) {
             convertView = View.inflate(context, R.layout.spinner_list_item, null);
             textView = convertView.findViewById(R.id.text_view_spinner);
+            imageView = convertView.findViewById(R.id.iv_view_spinner);
 
 //            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
 //                textView.setBackground(ContextCompat.getDrawable(context, backgroundSelector));
@@ -65,6 +81,21 @@ public abstract class NiceSpinnerBaseAdapter<T> extends BaseAdapter {
             convertView.setTag(new ViewHolder(textView));
         } else {
             textView = ((ViewHolder) convertView.getTag()).textView;
+        }
+
+        if (imageView != null) {
+            if (isShowDrawable || isShowColor) {
+                imageView.setVisibility(View.VISIBLE);
+                if (isShowDrawable) {
+                    imageView.setImageResource(res.get(position));
+                }
+                if (isShowColor) {
+                    imageView.setBackgroundColor(context.getColor(res.get(position)));
+                }
+            } else {
+                imageView.setVisibility(View.GONE);
+
+            }
         }
 
         textView.setText(spinnerTextFormatter.format(getItem(position)));
@@ -106,6 +137,7 @@ public abstract class NiceSpinnerBaseAdapter<T> extends BaseAdapter {
 
     @Override
     public abstract T getItem(int position);
+
 
     @Override
     public abstract int getCount();

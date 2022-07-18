@@ -1,13 +1,40 @@
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+
+
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/text_view_spinner"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_gravity="center"
-    android:ellipsize="marquee"
-    android:gravity="center"
-    android:padding="@dimen/one_and_a_half_grid_unit"
-    android:singleLine="true"
-    android:textSize="15sp"
-    tools:text="Item"
-    tools:textColor="@android:color/black" />
+    tools:context=".MainActivity">
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/iv_view_spinner"
+        android:layout_width="28dp"
+        android:layout_height="28dp"
+        android:layout_marginStart="-40dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+        <TextView
+
+            android:id="@+id/text_view_spinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+
+            android:ellipsize="marquee"
+
+            android:gravity="center"
+            android:padding="@dimen/one_and_a_half_grid_unit"
+            android:singleLine="true"
+            android:textSize="15sp"
+
+            app:layout_constraintStart_toEndOf="@+id/iv_view_spinner"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Items"
+            tools:textColor="@android:color/black" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -6,6 +6,14 @@
         <entry key="..\:/Users/Administrator/Desktop/spinner/app/src/main/res/layout/activity_main.xml" value="0.33" />
         <entry key="..\:/Users/Administrator/Desktop/spinner/app/src/main/res/layout/dropsy_layout_drop_down.xml" value="0.33" />
         <entry key="..\:/Users/Administrator/Desktop/spinner/app/src/main/res/layout/spinner_list_item.xml" value="0.1890625" />
+        <entry key="..\:/test/NiceSpinnerPro/app/src/main/res/drawable/border_gray_normal.xml" value="0.3365" />
+        <entry key="..\:/test/NiceSpinnerPro/app/src/main/res/drawable/ic_baseline_arrow_drop_down_24.xml" value="0.3365" />
+        <entry key="..\:/test/NiceSpinnerPro/app/src/main/res/drawable/ic_icon_photo_style1.xml" value="0.3365" />
+        <entry key="..\:/test/NiceSpinnerPro/app/src/main/res/drawable/selector.xml" value="0.3055" />
+        <entry key="..\:/test/NiceSpinnerPro/app/src/main/res/layout/activity_main.xml" value="0.23583460949464014" />
+        <entry key="..\:/test/NiceSpinnerPro/app/src/main/res/layout/dropsy_layout_drop_down.xml" value="0.67" />
+        <entry key="..\:/test/NiceSpinnerPro/app/src/main/res/layout/spinner_list_item.xml" value="0.4015625" />
+        <entry key="..\:/test/NiceSpinnerPro/app/src/main/res/layout/spinner_list_item1.xml" value="0.4015625" />
         <entry key="..\:/test/spinner/app/src/main/res/drawable/ic_baseline_arrow_drop_down_24.xml" value="0.342" />
         <entry key="..\:/test/spinner/app/src/main/res/drawable/selector.xml" value="0.342" />
         <entry key="..\:/test/spinner/app/src/main/res/layout/dropsy_layout_drop_down.xml" value="0.5375" />
@@ -13,6 +21,7 @@
       </map>
     </option>
   </component>
+  <component name="ExternalStorageConfigurationManager" enabled="true" />
   <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="Android Studio default JDK" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>

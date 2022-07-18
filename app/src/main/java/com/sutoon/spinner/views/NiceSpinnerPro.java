@@ -5,9 +5,10 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -15,30 +16,29 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ListAdapter;
+import android.widget.ImageView;
 import android.widget.ListPopupWindow;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.interpolator.view.animation.LinearOutSlowInInterpolator;
 
 import com.sutoon.spinner.R;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class NiceSpinnerPro extends RelativeLayout {
-    private static final int MAX_LEVEL = 10000;
-    private static final int VERTICAL_OFFSET = 1;
+
     private static final String INSTANCE_STATE = "instance_state";
     private static final String SELECTED_INDEX = "selected_index";
     private static final String IS_POPUP_SHOWING = "is_popup_showing";
     private static final String IS_ARROW_HIDDEN = "is_arrow_hidden";
     private static final String ARROW_DRAWABLE_RES_ID = "arrow_drawable_res_id";
-    private Drawable arrowDrawable;
     private ListPopupWindow popupWindow;
     private NiceSpinnerBaseAdapter adapter;
 
@@ -48,6 +48,8 @@ public class NiceSpinnerPro extends RelativeLayout {
     private OnSpinnerProItemSelectedListener onSpinnerProItemSelectedListener;
 
     private boolean isArrowHidden;
+    private boolean isShowDrawable;
+    private boolean isShowColor;
     private int textColor;
     private int backgroundSelector;
     private int arrowDrawableTint;
@@ -56,10 +58,23 @@ public class NiceSpinnerPro extends RelativeLayout {
     private int dropDownListPaddingBottom;
     private @DrawableRes
     int arrowDrawableResId;
+    int spinnerShow;
+    int spinnerColor;
     private SpinnerTextFormatter spinnerTextFormatter = new SimpleSpinnerTextFormatter();
     private SpinnerTextFormatter selectedTextFormatter = new SimpleSpinnerTextFormatter();
     private PopUpTextAlignment horizontalAlignment;
 
+    String leftTextStr = "";
+    String rightTextStr = "";
+    String leftTextColor = "";
+    String rightTextColor = "";
+
+    int selectGravity = Gravity.LEFT;
+
+    TextView leftText, rightText, centerText;
+    ImageView imArrow, imgSpinner;
+
+    List<Integer> res = new ArrayList<>();
     @Nullable
     private ObjectAnimator arrowAnimator = null;
 
@@ -75,6 +90,7 @@ public class NiceSpinnerPro extends RelativeLayout {
         super(context, attrs, defStyleAttr);
         initView(context, attrs);
     }
+
     @Override
     public Parcelable onSaveInstanceState() {
         Bundle bundle = new Bundle();
@@ -115,26 +131,32 @@ public class NiceSpinnerPro extends RelativeLayout {
 
         View inflater = LayoutInflater.from(getContext()).inflate(R.layout.dropsy_layout_drop_down, this, false);
         addView(inflater);
+        leftText = inflater.findViewById(R.id.tv_left_label);
+        rightText = inflater.findViewById(R.id.tv_right_label);
+        centerText = inflater.findViewById(R.id.tv_select_label);
+        imArrow = inflater.findViewById(R.id.img_arrow);
+        imgSpinner = inflater.findViewById(R.id.img_spinner);
 
         Resources resources = getResources();
         TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.NiceSpinner);
         int defaultPadding = resources.getDimensionPixelSize(R.dimen.one_and_a_half_grid_unit);
 
         setGravity(Gravity.CENTER_VERTICAL | Gravity.START);
-        setPadding(resources.getDimensionPixelSize(R.dimen.three_grid_unit), defaultPadding, defaultPadding,
-                defaultPadding);
+//        setPadding(resources.getDimensionPixelSize(R.dimen.three_grid_unit), defaultPadding, defaultPadding,
+//                defaultPadding);
         setClickable(true);
         backgroundSelector = typedArray.getResourceId(R.styleable.NiceSpinner_backgroundSelector, R.drawable.selector);
-        setBackgroundResource(backgroundSelector);
+//        setBackgroundResource(backgroundSelector);
         textColor = typedArray.getColor(R.styleable.NiceSpinner_textTint, getDefaultTextColor(context));
 
+
         popupWindow = new ListPopupWindow(context);
+        popupWindow.setBackgroundDrawable(new ColorDrawable(Color.WHITE));
         popupWindow.setOnItemClickListener((parent, view, position, id) -> {
-            // The selected item is not displayed within the list, so when the selected position is equal to
-            // the one of the currently selected item it gets shifted to the next item.
-            if (position >= selectedIndex && position < adapter.getCount()) {
-                position++;
-            }
+            // 选中的项目不会显示在列表中，因此当选中的位置等于当前选中的项目之一时，它会转移到下一个项目。
+//            if (position >= selectedIndex && position < adapter.getCount()-1) {
+//                position++;
+//            }
             selectedIndex = position;
 
             if (onSpinnerProItemSelectedListener != null) {
@@ -152,6 +174,7 @@ public class NiceSpinnerPro extends RelativeLayout {
             adapter.setSelectedIndex(position);
 
             setTextInternal(adapter.getItemInDataset(position));
+            showRes(isShowDrawable, isShowColor, res);
 
             dismissDropDown();
         });
@@ -163,43 +186,108 @@ public class NiceSpinnerPro extends RelativeLayout {
                 animateArrow(false);
             }
         });
-
+        leftTextStr = typedArray.getString(R.styleable.NiceSpinner_leftHint);
+        rightTextStr = typedArray.getString(R.styleable.NiceSpinner_rightHint);
         isArrowHidden = typedArray.getBoolean(R.styleable.NiceSpinner_hideArrow, false);
+        isShowDrawable = typedArray.getBoolean(R.styleable.NiceSpinner_isShowDrawable, false);
+        isShowColor = typedArray.getBoolean(R.styleable.NiceSpinner_isShowColor, false);
         arrowDrawableTint = typedArray.getColor(R.styleable.NiceSpinner_arrowTint, getResources().getColor(android.R.color.black));
         arrowDrawableResId = typedArray.getResourceId(R.styleable.NiceSpinner_arrowDrawable, R.drawable.ic_baseline_arrow_drop_down_24);
+
+        spinnerShow = typedArray.getResourceId(R.styleable.NiceSpinner_arrowDrawable, R.drawable.ic_baseline_arrow_drop_down_24);
+        spinnerColor = typedArray.getColor(R.styleable.NiceSpinner_showColor, getContext().getColor(R.color.white));
+
         dropDownListPaddingBottom =
                 typedArray.getDimensionPixelSize(R.styleable.NiceSpinner_dropDownListPaddingBottom, 0);
         horizontalAlignment = PopUpTextAlignment.fromId(
                 typedArray.getInt(R.styleable.NiceSpinner_popupTextAlignment, PopUpTextAlignment.CENTER.ordinal())
         );
+        selectGravity =
+                typedArray.getInt(R.styleable.NiceSpinner_showGravity, Gravity.LEFT);
+
+        if (TextUtils.isEmpty(leftTextStr)) {
+
+            leftText.setVisibility(View.GONE);
+        } else {
+            leftText.setVisibility(View.VISIBLE);
+            leftText.setText(leftTextStr);
+        }
+
+        if (TextUtils.isEmpty(rightTextStr)) {
+
+            rightText.setVisibility(View.GONE);
+        } else {
+            rightText.setVisibility(View.VISIBLE);
+            rightText.setText(rightTextStr);
+        }
+        centerText.setGravity(selectGravity);
+
+        if (isShowDrawable || isShowColor) {
+
+            imgSpinner.setVisibility(View.VISIBLE);
+            if (isShowDrawable) {
+                imgSpinner.setImageResource(spinnerShow);
+            }
+            if (isShowColor) {
+                imgSpinner.setBackgroundColor(spinnerColor);
+            }
+
+        } else {
+            imgSpinner.setVisibility(View.GONE);
+        }
+
+
         CharSequence[] entries = typedArray.getTextArray(R.styleable.NiceSpinner_entries);
         if (entries != null) {
-            attachDataSource(Arrays.asList(entries));
+            attachDataSource(Arrays.asList(entries), new ArrayList(), isShowDrawable, isShowColor);
         }
         typedArray.recycle();
 
         measureDisplayHeight();
 
     }
+
+    /**
+     *
+     */
+    private void showRes(boolean isShowDrawable, boolean isShowColor, List<Integer> integers) {
+        if (integers.size() == 0) return;
+        if (isShowDrawable || isShowColor) {
+
+            imgSpinner.setVisibility(View.VISIBLE);
+            if (isShowDrawable) {
+                imgSpinner.setImageResource(integers.get(selectedIndex));
+            }
+            if (isShowColor) {
+                imgSpinner.setBackgroundColor(getContext().getColor(integers.get(selectedIndex)));
+            }
+
+        } else {
+            imgSpinner.setVisibility(View.GONE);
+        }
+    }
+
     private void measureDisplayHeight() {
         displayHeight = getContext().getResources().getDisplayMetrics().heightPixels;
     }
 
     private void setTextInternal(Object item) {
         if (selectedTextFormatter != null) {
-//            setText(selectedTextFormatter.format(item));
+            centerText.setText(selectedTextFormatter.format(item));
         } else {
-//            setText(item.toString());
+            centerText.setText(item.toString());
         }
     }
 
 
     private void animateArrow(boolean shouldRotateUp) {
-        int start = shouldRotateUp ? 0 : MAX_LEVEL;
-        int end = shouldRotateUp ? MAX_LEVEL : 0;
-        arrowAnimator = ObjectAnimator.ofInt(arrowDrawable, "level", start, end);
-        arrowAnimator.setInterpolator(new LinearOutSlowInInterpolator());
-        arrowAnimator.start();
+
+        if (shouldRotateUp) {
+            imArrow.animate().rotation(180f).setDuration(200).start();
+        } else {
+            imArrow.animate().rotation(0f).setDuration(200).start();
+        }
+
     }
 
 
@@ -224,16 +312,20 @@ public class NiceSpinnerPro extends RelativeLayout {
         }
     }
 
-    public <T> void attachDataSource(@NonNull List<T> list) {
-        adapter = new NiceSpinnerAdapter<>(getContext(), list, textColor, backgroundSelector, spinnerTextFormatter, horizontalAlignment);
+    public <T> void attachDataSource(@NonNull List<T> list, List<Integer> integers, Boolean isShowDrawable, Boolean isShowColor) {
+        this.res = integers;
+        this.isShowDrawable = isShowDrawable;
+        this.isShowColor = isShowColor;
+        showRes(isShowDrawable, isShowColor, res);
+        adapter = new NiceSpinnerAdapter<>(getContext(), list, res, isShowDrawable, isShowColor, textColor, backgroundSelector, spinnerTextFormatter, horizontalAlignment);
         setAdapterInternal(adapter);
     }
 
-    public void setAdapter(ListAdapter adapter) {
-        this.adapter = new NiceSpinnerAdapterWrapper(getContext(), adapter, textColor, backgroundSelector,
-                spinnerTextFormatter, horizontalAlignment);
-        setAdapterInternal(this.adapter);
-    }
+//    public void setAdapter(ListAdapter adapter) {
+//        this.adapter = new NiceSpinnerAdapterWrapper(getContext(), adapter, textColor, backgroundSelector,
+//                spinnerTextFormatter, horizontalAlignment);
+//        setAdapterInternal(this.adapter);
+//    }
 
 
     public void showDropDown() {
@@ -243,20 +335,20 @@ public class NiceSpinnerPro extends RelativeLayout {
         popupWindow.setAnchorView(this);
         popupWindow.show();
         final ListView listView = popupWindow.getListView();
-        if(listView != null) {
+        if (listView != null) {
             listView.setVerticalScrollBarEnabled(false);
             listView.setHorizontalScrollBarEnabled(false);
             listView.setVerticalFadingEdgeEnabled(false);
             listView.setHorizontalFadingEdgeEnabled(false);
         }
     }
+
     public void dismissDropDown() {
         if (!isArrowHidden) {
             animateArrow(false);
         }
         popupWindow.dismiss();
     }
-
 
 
     private int getDefaultTextColor(Context context) {

@@ -9,13 +9,23 @@
     <declare-styleable name="NiceSpinner">
         <attr name="arrowTint" format="color" />
         <attr name="hideArrow" format="boolean" />
+        <attr name="isShowDrawable" format="boolean" />
+        <attr name="isShowColor" format="boolean" />
         <attr name="arrowDrawable" format="reference|color" />
+        <attr name="showColor" format="reference|color" />
+        <attr name="showGravity" format="enum">
+            <enum name="left" value="0" />
+            <enum name="center" value="1" />
+        </attr>
+
         <attr name="dropDownListPaddingBottom" format="dimension" />
         <attr name="backgroundSelector" format="integer" />
         <attr name="textTint" format="color" />
         <attr name="popupTextAlignment" />
         <attr name="entries" format="reference" />
-        <attr name="textHint" format="string" />
-        <attr name="textRight" format="string" />
+        <attr name="leftHint" format="string" />
+        <attr name="rightHint" format="string" />
+        <attr name="leftTextColor" format="color" />
+        <attr name="rightTextColor" format="color" />
     </declare-styleable>
 </resources>
